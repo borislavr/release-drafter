@@ -172,7 +172,7 @@ module.exports = (app, { getRouter }) => {
       filterByCommitish,
       includePreReleases: shouldIncludePreReleases,
       tagPrefix,
-      tag,
+      tag: input.tag,
     })
 
     const { commits, pullRequests: mergedPullRequests } =
