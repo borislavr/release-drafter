@@ -206,7 +206,7 @@ module.exports = (app, { getRouter }) => {
 
     let createOrUpdateReleaseResponse
     if (!draftRelease) {
-      log({ context, message: 'Creating new release' })
+      log({ context, message: 'Creating new release (update)' })
       createOrUpdateReleaseResponse = await updateRelease({
         context,
         releaseInfo,
