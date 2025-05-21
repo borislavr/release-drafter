@@ -5,7 +5,7 @@ const {
   generateReleaseInfo,
   createRelease,
   updateRelease,
-  updateLastRelease,
+  updateTaggedRelease,
 } = require('./lib/releases')
 const { findCommitsWithAssociatedPullRequests } = require('./lib/commits')
 const { sortPullRequests } = require('./lib/sort-pull-requests')
@@ -166,12 +166,13 @@ module.exports = (app, { getRouter }) => {
       includePreReleases || preReleaseIdentifier
     )
 
-    const { draftRelease, lastRelease } = await findReleases({
+    const { draftRelease, lastRelease, taggedRelease } = await findReleases({
       context,
       targetCommitish,
       filterByCommitish,
       includePreReleases: shouldIncludePreReleases,
       tagPrefix,
+      tag,
     })
 
     const { commits, pullRequests: mergedPullRequests } =
@@ -207,16 +208,16 @@ module.exports = (app, { getRouter }) => {
 
     let createOrUpdateReleaseResponse
     if (!draftRelease) {
-      if (lastRelease) {
-        log({ context, message: 'Updateing existing latest release' })
-        createOrUpdateReleaseResponse = await updateLastRelease({
+      if (taggedRelease) {
+        log({ context, message: 'Updateing existing tagged release' })
+        createOrUpdateReleaseResponse = await updateTaggedRelease({
           context,
           lastRelease,
           releaseInfo,
           config,
         })
       } else {
-        log({ context, message: 'Creating new release (update)' })
+        log({ context, message: 'Creating new release' })
         createOrUpdateReleaseResponse = await createRelease({
           context,
           releaseInfo,
