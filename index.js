@@ -206,14 +206,24 @@ module.exports = (app, { getRouter }) => {
 
     let createOrUpdateReleaseResponse
     if (!draftRelease) {
-      log({ context, message: 'Creating new release (update)' })
-      createOrUpdateReleaseResponse = await updateRelease({
-        context,
-        releaseInfo,
-        config,
-      })
+      if (lastRelease) {
+        log({ context, message: 'Updateing existing latest release' })
+        createOrUpdateReleaseResponse = await updateRelease({
+          context,
+          lastRelease,
+          releaseInfo,
+          config,
+        })
+      } else {
+        log({ context, message: 'Creating new release (update)' })
+        createOrUpdateReleaseResponse = await createRelease({
+          context,
+          releaseInfo,
+          config,
+        })
+     }
     } else {
-      log({ context, message: 'Updating existing release' })
+      log({ context, message: 'Updating existing draft release' })
       createOrUpdateReleaseResponse = await updateRelease({
         context,
         draftRelease,
