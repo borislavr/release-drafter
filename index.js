@@ -5,6 +5,7 @@ const {
   generateReleaseInfo,
   createRelease,
   updateRelease,
+  updateLastRelease,
 } = require('./lib/releases')
 const { findCommitsWithAssociatedPullRequests } = require('./lib/commits')
 const { sortPullRequests } = require('./lib/sort-pull-requests')
@@ -208,7 +209,7 @@ module.exports = (app, { getRouter }) => {
     if (!draftRelease) {
       if (lastRelease) {
         log({ context, message: 'Updateing existing latest release' })
-        createOrUpdateReleaseResponse = await updateRelease({
+        createOrUpdateReleaseResponse = await updateLastRelease({
           context,
           lastRelease,
           releaseInfo,
