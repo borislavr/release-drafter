@@ -193605,7 +193605,7 @@ module.exports = (app, { getRouter }) => {
         log({ context, message: 'Updateing existing tagged release' })
         createOrUpdateReleaseResponse = await updateTaggedRelease({
           context,
-          lastRelease,
+          taggedRelease,
           releaseInfo,
           config,
         })
@@ -194195,8 +194195,18 @@ const findReleases = async ({
   const draftRelease = filteredReleases.find(
     (r) => r.draft && r.prerelease === includePreReleases
   )
-  const lastRelease = sortedSelectedReleases[sortedSelectedReleases.length - 1]
   const taggedRelease = tag ? commitishFilteredReleases.find((r) => r.tag_name === tag) : null
+  prevRelease = null
+  if (taggedRelease) {
+    log({
+      context,
+      message: `Tagged release: ${taggedRelease.tag_name} ${taggedRelease.id}`,
+    })
+    prevRelease = sortedSelectedReleases[sortedSelectedReleases.indexOf(taggedRelease) - 1]
+  } else {
+    log({ context, message: `No tagged release found` })
+  }
+  const lastRelease = (prevRelease && taggedRelease) ? prevRelease : sortedSelectedReleases[sortedSelectedReleases.length - 1]
   if (draftRelease) {
     log({ context, message: `Draft release: ${draftRelease.tag_name}` })
   } else {
@@ -194212,14 +194222,6 @@ const findReleases = async ({
     })
   } else {
     log({ context, message: `No last release found` })
-  }
-  if (taggedRelease) {
-    log({
-      context,
-      message: `Tagged release: ${taggedRelease.tag_name} ${taggedRelease.id}`,
-    })
-  } else {
-    log({ context, message: `No tagged release found` })
   }
   return { draftRelease, lastRelease, taggedRelease }
 }
@@ -194632,16 +194634,16 @@ const updateRelease = ({ context, draftRelease, releaseInfo }) => {
   )
 }
 
-const updateTaggedRelease = ({ context, lastRelease, releaseInfo }) => {
+const updateTaggedRelease = ({ context, taggedRelease, releaseInfo }) => {
   const updateReleaseParameters = updateDraftReleaseParameters({
-    name: releaseInfo.name || lastRelease.name,
-    tag_name: releaseInfo.tag || lastRelease.tag_name,
+    name: releaseInfo.name || taggedRelease.name,
+    tag_name: releaseInfo.tag || taggedRelease.tag_name,
     target_commitish: releaseInfo.targetCommitish,
   })
 
   return context.octokit.repos.updateRelease(
     context.repo({
-      release_id: lastRelease.id,
+      release_id: taggedRelease.id,
       body: releaseInfo.body,
       draft: releaseInfo.draft,
       prerelease: releaseInfo.prerelease,

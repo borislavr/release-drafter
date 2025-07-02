@@ -212,7 +212,7 @@ module.exports = (app, { getRouter }) => {
         log({ context, message: 'Updateing existing tagged release' })
         createOrUpdateReleaseResponse = await updateTaggedRelease({
           context,
-          lastRelease,
+          taggedRelease,
           releaseInfo,
           config,
         })
