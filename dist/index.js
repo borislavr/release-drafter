@@ -194171,7 +194171,12 @@ const findReleases = async ({
       return response.data
     }
   )
-
+  log({
+    context,
+    message: `All releases: ${releases
+      .map((r) => `${r.tag_name} ${r.id}`)
+      .join(', ')}`,
+  })
   log({ context, message: `Found ${releases.length} releases` })
 
   // `refs/heads/branch` and `branch` are the same thing in this context
@@ -194195,7 +194200,8 @@ const findReleases = async ({
   const draftRelease = filteredReleases.find(
     (r) => r.draft && r.prerelease === includePreReleases
   )
-  const taggedRelease = tag ? commitishFilteredReleases.find((r) => r.tag_name === tag) : null
+  const taggedRelease = tag ? releases.find((r) => r.tag_name === tag) : null
+
   prevRelease = null
   if (taggedRelease) {
     log({
